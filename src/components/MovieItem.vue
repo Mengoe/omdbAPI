@@ -1,7 +1,12 @@
 <template>
-  <div
+  <RouterLink
     class="movie"
-    :style="{ backgroundImage: `url(${movie.Poster})`}">
+    :style="{ backgroundImage: `url(${movie.Poster})`}"
+    :to="`/movie/${movie.imdbID}`">
+    <Loader
+      v-if="imageLoading"
+      :size="1.5"
+      absolute />
     <div class="info">
       <div class="year">
         {{ movie.Year }}
@@ -10,22 +15,49 @@
         {{ movie.Title }}
       </div>
     </div>
-  </div>
+  </RouterLink>
 </template>
 
 <script>
+import Loader from '~/components/Loader'
+
 export default{
+    components : {
+      Loader
+    },
     props:{
         movie: {
             type : Object,
             default: () => ({})
         }
+    },
+    data() {
+      return {
+        imageLoading : true
+      }
+    },
+    // init() 메서드에서 html 요소를 다루면서 작업을 하고 있음 => created 때는 html요소와 매핑이 x
+    mounted() {
+      this.init()
+    },
+    methods : {
+      async init(){
+        const poster = this.movie.Poster 
+
+        if(poster === "N/A" || !poster){
+          this.imageLoading = false
+          return
+        }
+
+        await this.$loadImage(poster)
+        console.log('hello')
+        this.imageLoading = false
+      }
     }
 }
 </script>
 
 <style lang="scss" scoped>
-@import "~/scss/main";
 
 .movie {
     $width : 168px;
