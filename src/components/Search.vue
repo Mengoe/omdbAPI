@@ -88,7 +88,10 @@
 </script>
 
 <style lang="scss" scoped>
+
+
 .container{
+
     display: flex;
     font-size: 15px;
     > * {
@@ -97,6 +100,7 @@
         margin-right: 0;
       }
     }
+
     .selects{
         display: flex;
         select{
@@ -112,6 +116,24 @@
         height: 50px;
         font-weight: 700;
         flex-shrink: 0;
+    }
+
+    @include media-breakpoint-down(lg){
+      display : block;
+      input {
+        margin-right : 0;
+        margin-bottom: 10px;
+      }
+      .selects {
+        margin-right : 0;
+        margin-bottom : 10px;
+        select {
+          width : 100%;
+        }
+      }
+      .btn {
+        width : 100%;
+      }
     }
 }
 </style>
