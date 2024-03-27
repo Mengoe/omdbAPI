@@ -1,14 +1,17 @@
 import axios from 'axios'
 import _uniqBy from 'lodash/uniqBy'
 
+const _defaultMessage = 'Search for the movie title!'
+
 export default {
     // store에서, 모듈화돼서 사용될 수 있다.
     namespaced : true,
     // data! -> 취급해야되는
     state: () => ({
         movies : [],
-        message : 'Search for the movie title!',
-        loading : false
+        message : _defaultMessage,
+        loading : false,
+        theMovie : {}
     }),
     // vue js의 computed처럼, 계산된 속성을 만들어내는
     getters: {
@@ -28,6 +31,8 @@ export default {
         },
         resetMovies(state){
             state.movies = []
+            state.message = _defaultMessage
+            state.loading = false
         }
     },
 
@@ -100,23 +105,52 @@ export default {
                 loading : false
               })
             }
+        },
+        async searchMovieWithId({state, commit}, payload) {
+          if(state.loading){
+            return
+          }
+
+          commit('updateState', {
+            theMovie : {},
+            loading : true
+          })
+
+          try{
+            console.log("called ? ")
+            const res = await _fetchMovie(payload)
+            commit('updateState', {
+              theMovie : res.data
+            })
+          } catch(error){
+            commit('updateState', {
+              theMoive : {}
+            })
+          } finally {
+            commit('updateState', {
+              loading : false
+            })
+          }
         }
     }
 }
 
 function _fetchMovie(payload){
-    const {title, type, year, page} = payload
+    const {title, type, year, page, id} = payload
 
     const OMDB_API_KEY = '7035c60c'
-    const url = `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${title}&type=${type}&y=${year}&page=${page}`
+    const url = id 
+    ? `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&i=${id}` 
+    : `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${title}&type=${type}&y=${year}&page=${page}`
     
-    
+     
     return new Promise((resolve, reject) => {
         axios.get(url)
           .then((res) => {
             if(res.data.Error){
               reject(res.data.Error)
             }
+            console.log(res)
             resolve(res)
           })
           .catch((err) => {
